@@ -20,6 +20,9 @@ const messageSchema = new mongoose.Schema(
     image: {
       type: String,
     },
+    cloudinaryId: {
+      type: String,
+    },
   },
   { timestamps: true }
 );

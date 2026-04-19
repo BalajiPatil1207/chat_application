@@ -58,9 +58,11 @@ export const sendMessage = async (req, res) => {
     }
 
     let imageUrl;
+    let cloudinaryId;
     if (image) {
       const uploadResponse = await cloudinary.uploader.upload(image);
       imageUrl = uploadResponse.secure_url;
+      cloudinaryId = uploadResponse.public_id;
     }
 
     const newMessage = new Message({
@@ -68,6 +70,7 @@ export const sendMessage = async (req, res) => {
       receiverId,
       text,
       image: imageUrl,
+      cloudinaryId,
     });
 
     await newMessage.save();

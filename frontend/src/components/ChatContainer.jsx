@@ -41,7 +41,9 @@ function ChatContainer() {
             {messages.map((msg) => (
               <div
                 key={msg._id}
-                className={`chat ${msg.senderId === authUser._id ? "chat-end" : "chat-start"}`}
+                className={`chat ${
+                  msg.senderId === authUser._id ? "chat-end place-items-end" : "chat-start place-items-start"
+                }`}
               >
                 <div
                   className={`chat-bubble relative ${

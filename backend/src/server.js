@@ -8,12 +8,18 @@ import helmet from "helmet";
 import { connectDB } from "./config/db.js";
 import { ENV } from "./lib/env.js";
 import { app, server } from "./lib/socket.js";
+import { initCronJobs } from "./lib/cron.js";
 
 import authRoutes from "./routes/auth.js";
 import messageRoutes from "./routes/message.js";
 
 dotenv.config();
+initCronJobs();
 
+const PORT = ENV.PORT || 3000;
+const __dirname = path.resolve();
+
+// Middleware
 app.use(helmet());
 app.use(
   cors({
@@ -25,26 +31,22 @@ app.use(
 app.use(express.json({ limit: "5mb" }));
 app.use(cookieParser());
 
-const __dirname = path.resolve();
-
-const PORT = process.env.PORT || 3000;
-
-// =====  Routes  =====
+// Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/messages", messageRoutes);
 app.use("/api/message", messageRoutes);
 
-if (process.env.NODE_ENV === "production") {
-    app.use(express.static(path.join(__dirname,"../frontend/dist")));
+if (ENV.NODE_ENV === "production") {
+    app.use(express.static(path.join(__dirname, "../frontend/dist")));
 
-    app.get("*",(req,res)=>{
-        res.sendFile(path.join(__dirname,"../frontend","dist","index.html"));
+    app.get("*", (req, res) => {
+        res.sendFile(path.join(__dirname, "../frontend", "dist", "index.html"));
     });
 }
 
 // Global Error Handler
 app.use((err, req, res, next) => {
-  console.error("Unhandle Error:", err);
+  console.error("Unhandled Error:", err);
   res.status(err.status || 500).json({
     message: err.message || "Internal Server Error",
   });
