@@ -1,5 +1,5 @@
-const fs = require("fs");
-const path = require("path");
+import fs from "fs";
+import path from "path";
 
 // ✅ Safe delete function
 function safeUnlink(filePath) {
@@ -13,8 +13,11 @@ function safeUnlink(filePath) {
   }
 }
 
-// ✅ Recursive helper to find and delete uploaded files from any object (like req.body)
-function deleteUploadedFiles(data) {
+/**
+ * Recursive helper to find and delete uploaded files from any object (like req.body)
+ * @param {object} data 
+ */
+export function deleteUploadedFiles(data) {
   if (!data) return;
 
   if (typeof data === "object") {
@@ -32,5 +35,3 @@ function deleteUploadedFiles(data) {
     }
   }
 }
-
-module.exports = { deleteUploadedFiles };

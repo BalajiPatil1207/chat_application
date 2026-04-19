@@ -1,17 +1,21 @@
 import express from "express";
+import { 
+  login, 
+  logout, 
+  signup, 
+  updateProfile, 
+  checkAuth 
+} from "../controllers/auth.controller.js";
+import { authenticateToken } from "../middleware/authMiddleware.js";
+
 const router = express.Router();
 
-router.get("/signup", (req,res)=>{
-  res.send("Signup endpoint");
-});
+router.post("/signup", signup);
+router.post("/login", login);
+router.post("/logout", logout);
 
-router.get("/login", (req,res)=>{
-  res.send("Login endpoint");
-});
+router.put("/update-profile", authenticateToken, updateProfile);
 
-router.get("/logout", (req,res)=>{
-  res.send("Logout endpoint");
-});
-
+router.get("/check", authenticateToken, checkAuth);
 
 export default router;

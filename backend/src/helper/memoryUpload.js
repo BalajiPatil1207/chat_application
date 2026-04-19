@@ -1,8 +1,8 @@
-const multer = require("multer");
-const fs = require("fs");
-const path = require("path");
-const sharp = require("sharp");
-const { PDFDocument } = require("pdf-lib");
+import multer from "multer";
+import fs from "fs";
+import path from "path";
+import sharp from "sharp";
+import { PDFDocument } from "pdf-lib";
 
 // ------------------------------
 // Nested setter
@@ -33,7 +33,7 @@ function setDeepValue(obj, key, value) {
 // ------------------------------
 const upload = multer({ storage: multer.memoryStorage() }).any();
 
-function memoryUpload(folderName = "default") {
+export function memoryUpload(folderName = "default") {
     return (req, res, next) => {
         upload(req, res, (err) => {
             if (err) return next(err);
@@ -79,7 +79,7 @@ function memoryUpload(folderName = "default") {
 // ------------------------------
 // Save + Compress
 // ------------------------------
-async function saveRAMFiles(tempFiles) {
+export async function saveRAMFiles(tempFiles) {
     for (const f of tempFiles) {
         const fullPath = path.join(process.cwd(), "public", f.finalPath);
 
@@ -107,5 +107,3 @@ async function saveRAMFiles(tempFiles) {
         await fs.promises.writeFile(fullPath, finalBuffer);
     }
 }
-
-module.exports = { memoryUpload, saveRAMFiles };

@@ -1,18 +1,18 @@
 // middleware/authMiddleware.js
-const { verifyToken } = require('../helper/authHelper');
-const { handle401 } = require('../helper/errorHandler');
+import { verifyToken } from '../helper/authHelper.js';
+import { handle401 } from '../helper/errorHandler.js';
 
 /**
  * Authentication Middleware
  * Checks for JWT token in Authorization header
  */
-const authenticateToken = (req, res, next) => {
+export const authenticateToken = (req, res, next) => {
   const authHeader = req.headers['authorization'];
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
     return handle401(res, "No token provided");
   }
 
-  const token = authHeader.split(" ")[1];// Bearer <token>
+  const token = authHeader.split(" ")[1]; // Bearer <token>
 
   if (!token) {
     return handle401(res, "No token provided, access denied");
@@ -27,11 +27,4 @@ const authenticateToken = (req, res, next) => {
   // Attach user data to request object
   req.user = decoded;
   next();
-};
-
-
-
-module.exports = {
-  authenticateToken,
-  
 };
