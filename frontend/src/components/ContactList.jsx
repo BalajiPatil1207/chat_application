@@ -4,7 +4,7 @@ import UsersLoadingSkeleton from "./UsersLoadingSkeleton";
 import { useAuthStore } from "../store/useAuthStore";
 
 function ContactList() {
-  const { getAllContacts, allContacts, setSelectedUser, isUsersLoading } = useChatStore();
+  const { getAllContacts, allContacts, setSelectedUser, isUsersLoading, selectedUser } = useChatStore();
   const { onlineUsers } = useAuthStore();
 
   useEffect(() => {
@@ -18,7 +18,9 @@ function ContactList() {
       {allContacts.map((contact) => (
         <div
           key={contact._id}
-          className="bg-cyan-500/10 p-4 rounded-lg cursor-pointer hover:bg-cyan-500/20 transition-colors"
+          className={`p-3 rounded-xl cursor-pointer transition-all flex items-center gap-3 border border-transparent ${
+            selectedUser?._id === contact._id ? "bg-[#2a3942] border-white/5" : "hover:bg-[#202c33]"
+          }`}
           onClick={() => setSelectedUser(contact)}
         >
           <div className="flex items-center gap-3">

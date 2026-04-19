@@ -35,16 +35,20 @@ function ChatContainer() {
   return (
     <>
       <ChatHeader />
-      <div 
-        className="flex-1 px-4 overflow-y-auto py-8 relative bg-[#0b141a]"
-        style={{
-          backgroundImage: `url("https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png")`,
-          backgroundBlendMode: "overlay",
-          backgroundColor: "#0b141a"
-        }}
-      >
-        {messages.length > 0 && !isMessagesLoading ? (
-          <div className="flex flex-col space-y-2">
+      <div className="flex-1 overflow-y-auto relative bg-[#0b141a]">
+        {/* WhatsApp Background Pattern */}
+        <div
+          className="absolute inset-0 opacity-[0.05] pointer-events-none"
+          style={{
+            backgroundImage: `url("https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png")`,
+            backgroundRepeat: "repeat",
+            backgroundSize: "400px",
+          }}
+        />
+
+        <div className="relative z-10 p-4 min-h-full flex flex-col">
+          {messages.length > 0 && !isMessagesLoading ? (
+            <div className="flex flex-col space-y-2">
             {messages.map((msg) => (
               <div
                 key={msg._id}
@@ -79,6 +83,7 @@ function ChatContainer() {
         ) : (
           <NoChatHistoryPlaceholder name={selectedUser.fullName} />
         )}
+        </div>
       </div>
 
       <MessageInput />
