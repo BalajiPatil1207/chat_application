@@ -4,7 +4,8 @@ import {
   getAllContacts, 
   getChatPartners, 
   getMessagesByUserId, 
-  sendMessage 
+  sendMessage,
+  markMessagesAsSeen
 } from "../controllers/message.controller.js";
 
 const router = express.Router();
@@ -14,5 +15,6 @@ router.get("/partners", authenticateToken, getChatPartners);
 router.get("/:id", authenticateToken, getMessagesByUserId);
 
 router.post("/send/:id", authenticateToken, sendMessage);
+router.put("/seen/:id", authenticateToken, markMessagesAsSeen);
 
 export default router;

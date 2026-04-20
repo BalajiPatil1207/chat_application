@@ -2,16 +2,19 @@ import { useRef, useState } from "react";
 import useKeyboardSound from "../hooks/useKeyboardSound";
 import { useChatStore } from "../store/useChatStore";
 import toast from "react-hot-toast";
-import { ImageIcon, SendIcon, XIcon } from "lucide-react";
+import { ImageIcon, SendIcon, XIcon, Smile } from "lucide-react";
+import EmojiPicker from "emoji-picker-react";
 
 function MessageInput() {
   const { playRandomKeyStrokeSound } = useKeyboardSound();
   const [text, setText] = useState("");
   const [imagePreview, setImagePreview] = useState(null);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
   const fileInputRef = useRef(null);
+  const typingTimeoutRef = useRef(null);
 
-  const { sendMessage, isSoundEnabled } = useChatStore();
+  const { sendMessage, isSoundEnabled, sendTypingStatus, selectedUser } = useChatStore();
 
   const handleSendMessage = (e) => {
     e.preventDefault();
@@ -22,6 +25,11 @@ function MessageInput() {
       text: text.trim(),
       image: imagePreview,
     });
+
+    // Reset typing status immediately
+    sendTypingStatus(false, selectedUser._id);
+    if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+
     setText("");
     setImagePreview("");
     if (fileInputRef.current) fileInputRef.current.value = "";
@@ -40,9 +48,29 @@ function MessageInput() {
     reader.readAsDataURL(file);
   };
 
+  const onEmojiClick = (emojiData) => {
+    setText((prev) => prev + emojiData.emoji);
+  };
+
   const removeImage = () => {
     setImagePreview(null);
     if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  const handleInputChange = (e) => {
+    setText(e.target.value);
+    if (isSoundEnabled) playRandomKeyStrokeSound();
+
+    // Notify typing
+    sendTypingStatus(true, selectedUser._id);
+
+    // Clear previous timeout
+    if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+
+    // Set new timeout to stop typing status after 2 seconds
+    typingTimeoutRef.current = setTimeout(() => {
+      sendTypingStatus(false, selectedUser._id);
+    }, 2000);
   };
 
   return (
@@ -67,7 +95,28 @@ function MessageInput() {
       )}
 
       <form onSubmit={handleSendMessage} className="flex items-end gap-2">
-        <div className="flex-1 flex items-center gap-2 bg-[#202c33] rounded-[24px] px-4 py-1.5 min-h-[48px]">
+        <div className="flex-1 flex items-center gap-2 bg-[#202c33] rounded-[24px] px-4 py-1.5 min-h-[48px] relative">
+          <button
+            type="button"
+            className={`transition-colors ${showEmojiPicker ? "text-[#00a884]" : "text-[#8696a0] hover:text-[#e9edef]"}`}
+            onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+          >
+            <Smile className="size-6" />
+          </button>
+
+          {showEmojiPicker && (
+            <div className="absolute bottom-[100%] left-0 mb-4 z-50">
+              <EmojiPicker 
+                onEmojiClick={onEmojiClick} 
+                theme="dark"
+                skinTonesDisabled
+                searchDisabled={false}
+                width={300}
+                height={400}
+              />
+            </div>
+          )}
+
           <button
             type="button"
             className="text-[#8696a0] hover:text-[#e9edef] p-1"
@@ -79,10 +128,7 @@ function MessageInput() {
           <input
             type="text"
             value={text}
-            onChange={(e) => {
-              setText(e.target.value);
-              isSoundEnabled && playRandomKeyStrokeSound();
-            }}
+            onChange={handleInputChange}
             className="flex-1 bg-transparent border-none text-[#e9edef] placeholder-[#8696a0] focus:ring-0 text-[15px] outline-none"
             placeholder="Type a message"
           />

@@ -5,10 +5,12 @@ import { useAuthStore } from "../store/useAuthStore";
 import { useCallStore } from "../store/useCallStore";
 
 function ChatHeader() {
-  const { selectedUser, setSelectedUser } = useChatStore();
+  const { selectedUser, setSelectedUser, typingUsers } = useChatStore();
   const { onlineUsers } = useAuthStore();
   const { handleCallUser } = useCallStore();
+  
   const isOnline = onlineUsers.includes(selectedUser?._id);
+  const isTyping = typingUsers[selectedUser?._id];
 
   useEffect(() => {
     const handleEscKey = (event) => {
@@ -45,7 +47,11 @@ function ChatHeader() {
 
         <div>
           <h3 className="text-slate-200 font-medium">{selectedUser.fullName}</h3>
-          <p className="text-slate-400 text-sm">{isOnline ? "Online" : "Offline"}</p>
+          {isTyping ? (
+            <p className="text-cyan-500 text-sm font-medium animate-pulse">typing...</p>
+          ) : (
+            <p className="text-slate-400 text-sm">{isOnline ? "Online" : "Offline"}</p>
+          )}
         </div>
       </div>
 

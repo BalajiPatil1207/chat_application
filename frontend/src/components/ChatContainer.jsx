@@ -5,6 +5,7 @@ import ChatHeader from "./ChatHeader";
 import NoChatHistoryPlaceholder from "./NoChatHistoryPlaceholder";
 import MessageInput from "./MessageInput";
 import MessagesLoadingSkeleton from "./MessagesLoadingSkeleton";
+import { CheckCheck } from "lucide-react";
 
 function ChatContainer() {
   const {
@@ -12,19 +13,15 @@ function ChatContainer() {
     getMessagesByUserId,
     messages,
     isMessagesLoading,
-    subscribeToMessages,
-    unsubscribeFromMessages,
+    markMessagesAsSeen,
   } = useChatStore();
   const { authUser } = useAuthStore();
   const messageEndRef = useRef(null);
 
   useEffect(() => {
     getMessagesByUserId(selectedUser._id);
-    subscribeToMessages();
-
-    // clean up
-    return () => unsubscribeFromMessages();
-  }, [selectedUser, getMessagesByUserId, subscribeToMessages, unsubscribeFromMessages]);
+    markMessagesAsSeen(selectedUser._id);
+  }, [selectedUser, getMessagesByUserId, markMessagesAsSeen]);
 
   useEffect(() => {
     if (messageEndRef.current) {
@@ -64,14 +61,22 @@ function ChatContainer() {
                   {msg.image && (
                     <img src={msg.image} alt="Shared" className="rounded-md max-h-60 w-full object-cover mb-1" />
                   )}
-                  {msg.text && <p className="text-[14.2px] leading-tight whitespace-pre-wrap pr-10">{msg.text}</p>}
-                  <p className="text-[10px] opacity-60 absolute bottom-1 right-2 inline-block">
-                    {new Date(msg.createdAt).toLocaleTimeString(undefined, {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                      hour12: true,
-                    })}
-                  </p>
+                  {msg.text && <p className="text-[14.2px] leading-tight whitespace-pre-wrap pr-16">{msg.text}</p>}
+                  
+                  <div className="flex items-center gap-1 absolute bottom-1 right-2">
+                    <p className="text-[10px] opacity-60">
+                      {new Date(msg.createdAt).toLocaleTimeString(undefined, {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                        hour12: true,
+                      })}
+                    </p>
+                    {msg.senderId === authUser._id && (
+                      <CheckCheck 
+                        className={`size-3.5 ${msg.isSeen ? "text-[#53bdeb]" : "text-slate-400 opacity-60"}`} 
+                      />
+                    )}
+                  </div>
                 </div>
               </div>
             ))}

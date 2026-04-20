@@ -76,6 +76,21 @@ export function initializeSocket(server, allowedOrigins) {
         io.to(receiverSocketId).emit("call:ended", { from: userId });
       }
     });
+
+    // --- Typing Indicators ---
+    socket.on("typing", ({ to }) => {
+      const receiverSocketId = getReceiverSocketId(to);
+      if (receiverSocketId) {
+        io.to(receiverSocketId).emit("typing", { from: userId });
+      }
+    });
+
+    socket.on("stop-typing", ({ to }) => {
+      const receiverSocketId = getReceiverSocketId(to);
+      if (receiverSocketId) {
+        io.to(receiverSocketId).emit("stop-typing", { from: userId });
+      }
+    });
   });
 
   return io;

@@ -10,6 +10,7 @@ export const useCallStore = create((set, get) => ({
   incomingCall: null,
   peer: null,
   callType: null, // 'audio' or 'video'
+  remoteUser: null, // Store info of the other person in the call
   isMuted: false,
   isVideoOff: false,
 
@@ -37,8 +38,12 @@ export const useCallStore = create((set, get) => ({
   setRemoteStream: (stream) => set({ remoteStream: stream }),
   
   handleCallUser: async (to, type = "video") => {
+    console.log(`[CallStore] Initiating ${type} call to ${to}`);
     const socket = useAuthStore.getState().socket;
     if (!socket) return;
+
+    // Set remote user info from current chat selection
+    const { selectedUser } = (await import("./useChatStore")).useChatStore.getState();
 
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
@@ -50,7 +55,8 @@ export const useCallStore = create((set, get) => ({
         localStream: stream, 
         isCalling: true, 
         callStatus: "ringing", 
-        callType: type 
+        callType: type,
+        remoteUser: selectedUser
       });
 
       const peer = new RTCPeerConnection({
@@ -76,24 +82,28 @@ export const useCallStore = create((set, get) => ({
       await peer.setLocalDescription(offer);
 
       socket.emit("call:user", { to, offer, type });
+      console.log("[CallStore] Offer emitted");
 
       set({ peer });
     } catch (error) {
-      console.error("Failed to start call:", error);
+      console.error("[CallStore] Failed to start call:", error);
       toast.error("Could not access camera/microphone");
     }
   },
 
   handleIncomingCall: (data) => {
+    console.log("[CallStore] Incoming call from:", data.from);
     set({ 
       incomingCall: data, 
       callStatus: "receiving", 
-      callType: data.type 
+      callType: data.type,
+      remoteUser: data.fromInfo
     });
   },
 
   acceptCall: async () => {
     const { incomingCall } = get();
+    console.log("[CallStore] Accepting call from:", incomingCall?.from);
     const socket = useAuthStore.getState().socket;
     if (!incomingCall || !socket) return;
 
@@ -165,12 +175,14 @@ export const useCallStore = create((set, get) => ({
   },
 
   endCall: () => {
-    const { localStream, peer, incomingCall, isCalling } = get();
+    console.log("[CallStore] Ending call");
+    const { localStream, peer, incomingCall, isCalling, remoteUser } = get();
     const socket = useAuthStore.getState().socket;
     
     // Notify other party if in a call
-    const otherPartyId = incomingCall?.from || (isCalling && useAuthStore.getState().selectedUser?._id);
+    const otherPartyId = incomingCall?.from || remoteUser?._id || (isCalling && useAuthStore.getState().selectedUser?._id);
     if (socket && otherPartyId) {
+        console.log("[CallStore] Emitting call:ended to:", otherPartyId);
         socket.emit("call:ended", { to: otherPartyId });
     }
 
@@ -189,7 +201,8 @@ export const useCallStore = create((set, get) => ({
       callStatus: "idle",
       incomingCall: null,
       peer: null,
-      callType: null
+      callType: null,
+      remoteUser: null
     });
   },
 
@@ -205,7 +218,8 @@ export const useCallStore = create((set, get) => ({
       callStatus: "idle",
       incomingCall: null,
       peer: null,
-      callType: null
+      callType: null,
+      remoteUser: null
     });
 
     toast("Call ended", { icon: "📞" });

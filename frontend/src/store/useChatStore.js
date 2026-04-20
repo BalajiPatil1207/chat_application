@@ -8,10 +8,7 @@ export const useChatStore = create((set, get) => ({
   chats: [],
   messages: [],
   activeTab: "chats",
-  selectedUser: null,
-  isUsersLoading: false,
-  isMessagesLoading: false,
-  isSoundEnabled: JSON.parse(localStorage.getItem("isSoundEnabled")) === true,
+  unreadCounts: {},
 
   toggleSound: () => {
     localStorage.setItem("isSoundEnabled", !get().isSoundEnabled);
@@ -19,7 +16,15 @@ export const useChatStore = create((set, get) => ({
   },
 
   setActiveTab: (tab) => set({ activeTab: tab }),
-  setSelectedUser: (selectedUser) => set({ selectedUser }),
+  setSelectedUser: (selectedUser) => {
+    set({ selectedUser });
+    if (selectedUser) {
+      // Clear unread count for the selected user
+      set((state) => ({
+        unreadCounts: { ...state.unreadCounts, [selectedUser._id]: 0 },
+      }));
+    }
+  },
 
   getAllContacts: async () => {
     set({ isUsersLoading: true });
@@ -57,7 +62,7 @@ export const useChatStore = create((set, get) => ({
   },
 
   sendMessage: async (messageData) => {
-    const { selectedUser, messages } = get();
+    const { selectedUser, messages, chats } = get();
     const { authUser } = useAuthStore.getState();
 
     const tempId = `temp-${Date.now()}`;
@@ -69,10 +74,14 @@ export const useChatStore = create((set, get) => ({
       text: messageData.text,
       image: messageData.image,
       createdAt: new Date().toISOString(),
-      isOptimistic: true, // flag to identify optimistic messages (optional)
+      isOptimistic: true,
     };
-    // immidetaly update the ui by adding the message
+    // immediately update the ui by adding the message
     set({ messages: [...messages, optimisticMessage] });
+
+    // --- SORTING: Move selected user to top ---
+    const updatedChats = chats.filter((chat) => chat._id !== selectedUser._id);
+    set({ chats: [selectedUser, ...updatedChats] });
 
     try {
       const res = await axiosInstance.post(`/messages/send/${selectedUser._id}`, messageData);
@@ -87,28 +96,99 @@ export const useChatStore = create((set, get) => ({
     }
   },
 
-  subscribeToMessages: () => {
-    const { selectedUser, isSoundEnabled } = get();
-    if (!selectedUser) return;
+  markMessagesAsSeen: async (partnerId) => {
+    try {
+      await axiosInstance.put(`/messages/seen/${partnerId}`);
+      // Logically, we don't need to update our own messages here
+      // because we are marking someone ELSE's messages as seen.
+    } catch (error) {
+      console.error("Error marking messages as seen:", error);
+    }
+  },
 
+  typingUsers: {},
+
+  sendTypingStatus: (isTyping, partnerId) => {
+    const socket = useAuthStore.getState().socket;
+    if (!socket || !partnerId) return;
+
+    if (isTyping) {
+      socket.emit("typing", { to: partnerId });
+    } else {
+      socket.emit("stop-typing", { to: partnerId });
+    }
+  },
+
+  subscribeToMessages: () => {
     const socket = useAuthStore.getState().socket;
     if (!socket) return;
 
     socket.off("newMessage");
+    socket.off("messagesSeen");
+    socket.off("typing");
+    socket.off("stop-typing");
 
     socket.on("newMessage", (newMessage) => {
-      const isMessageSentFromSelectedUser = newMessage.senderId === selectedUser._id;
-      if (!isMessageSentFromSelectedUser) return;
+      const { selectedUser, isSoundEnabled, chats, markMessagesAsSeen } = get();
+      
+      // --- SORTING: Move sender to top ---
+      const senderId = newMessage.senderId;
+      const otherUser = chats.find((chat) => chat._id === senderId);
 
-      const currentMessages = get().messages;
-      set({ messages: [...currentMessages, newMessage] });
+      if (otherUser) {
+        const filteredChats = chats.filter((chat) => chat._id !== senderId);
+        set({ chats: [otherUser, ...filteredChats] });
+      }
+
+      // --- UNREAD COUNT & MESSAGE LIST ---
+      const isMessageSentFromSelectedUser = selectedUser && senderId === selectedUser._id;
+      
+      if (isMessageSentFromSelectedUser) {
+        const currentMessages = get().messages;
+        set({ messages: [...currentMessages, newMessage] });
+        
+        // Mark as seen immediately if chat is open
+        markMessagesAsSeen(senderId);
+      } else {
+        // Increment unread count if not selected
+        set((state) => ({
+          unreadCounts: {
+            ...state.unreadCounts,
+            [senderId]: (state.unreadCounts[senderId] || 0) + 1,
+          },
+        }));
+      }
 
       if (isSoundEnabled) {
         const notificationSound = new Audio("/sounds/notification.mp3");
-
-        notificationSound.currentTime = 0; // reset to start
+        notificationSound.currentTime = 0;
         notificationSound.play().catch((e) => console.log("Audio play failed:", e));
       }
+    });
+
+    // Handle messages being seen by the other user
+    socket.on("messagesSeen", ({ seenBy }) => {
+      const { selectedUser, messages } = get();
+      if (selectedUser && seenBy === selectedUser._id) {
+        // Update all outgoing messages to seen
+        const updatedMessages = messages.map((msg) => 
+          msg.receiverId === seenBy ? { ...msg, isSeen: true } : msg
+        );
+        set({ messages: updatedMessages });
+      }
+    });
+
+    // --- Typing Indicators ---
+    socket.on("typing", ({ from }) => {
+      set((state) => ({
+        typingUsers: { ...state.typingUsers, [from]: true },
+      }));
+    });
+
+    socket.on("stop-typing", ({ from }) => {
+      set((state) => ({
+        typingUsers: { ...state.typingUsers, [from]: false },
+      }));
     });
   },
 
@@ -116,5 +196,8 @@ export const useChatStore = create((set, get) => ({
     const socket = useAuthStore.getState().socket;
     if (!socket) return;
     socket.off("newMessage");
+    socket.off("messagesSeen");
+    socket.off("typing");
+    socket.off("stop-typing");
   },
 }));

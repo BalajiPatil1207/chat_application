@@ -23,6 +23,10 @@ const messageSchema = new mongoose.Schema(
     cloudinaryId: {
       type: String,
     },
+    isSeen: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true }
 );

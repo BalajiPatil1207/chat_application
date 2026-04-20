@@ -8,8 +8,15 @@ import ContactList from "../components/ContactList";
 import ChatContainer from "../components/ChatContainer";
 import NoConversationPlaceholder from "../components/NoConversationPlaceholder";
 
+import { useEffect } from "react";
+
 function ChatPage() {
-  const { activeTab, selectedUser } = useChatStore();
+  const { activeTab, selectedUser, subscribeToMessages, unsubscribeFromMessages } = useChatStore();
+
+  useEffect(() => {
+    subscribeToMessages();
+    return () => unsubscribeFromMessages();
+  }, [subscribeToMessages, unsubscribeFromMessages]);
 
   return (
     <div className="h-[calc(100vh-2rem)] w-full max-w-6xl mx-auto overflow-hidden bg-[#0b141a] md:rounded-xl shadow-2xl flex">

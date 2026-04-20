@@ -114,3 +114,26 @@ export const getChatPartners = async (req, res) => {
     return formatMongooseError(res, error);
   }
 };
+export const markMessagesAsSeen = async (req, res) => {
+  try {
+    const myId = req.user._id;
+    const { id: senderId } = req.params;
+
+    // Update messages where I am the receiver and the specified user is the sender
+    await Message.updateMany(
+      { senderId: senderId, receiverId: myId, isSeen: false },
+      { $set: { isSeen: true } }
+    );
+
+    // Notify the sender that their messages have been seen
+    const senderSocketId = getReceiverSocketId(senderId);
+    if (senderSocketId) {
+      io.to(senderSocketId).emit("messagesSeen", { seenBy: myId });
+    }
+
+    return handle200(res, null, "Messages marked as seen");
+  } catch (error) {
+    console.error("Error in markMessagesAsSeen:", error);
+    return formatMongooseError(res, error);
+  }
+};

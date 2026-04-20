@@ -13,19 +13,18 @@ function CallOverlay() {
     toggleMute,
     toggleVideo,
     isMuted,
-    isVideoOff
+    isVideoOff,
+    remoteUser
   } = useCallStore();
-  
-  const { selectedUser } = useChatStore();
   
   const localVideoRef = useRef();
   const remoteVideoRef = useRef();
 
   useEffect(() => {
-    if (localVideoRef.current && localStream) {
+    if (localVideoRef.current && localStream && !isVideoOff) {
       localVideoRef.current.srcObject = localStream;
     }
-  }, [localStream]);
+  }, [localStream, isVideoOff]);
 
   useEffect(() => {
     if (remoteVideoRef.current && remoteStream) {
@@ -49,9 +48,9 @@ function CallOverlay() {
         ) : (
           <div className="w-full h-full flex flex-col items-center justify-center bg-[#111b21]">
             <div className="w-32 h-32 rounded-full overflow-hidden mb-4 border-4 border-white/5 shadow-2xl">
-                <img src={selectedUser?.profilePic || "/avatar.png"} alt="User" className="w-full h-full object-cover" />
+                <img src={remoteUser?.profilePic || "/avatar.png"} alt="User" className="w-full h-full object-cover" />
             </div>
-            <h2 className="text-3xl font-bold text-white">{selectedUser?.fullName}</h2>
+            <h2 className="text-3xl font-bold text-white">{remoteUser?.fullName}</h2>
             <p className="text-slate-400 mt-2 text-lg animate-pulse">
                 {callStatus === "ringing" ? "Ringing..." : "Active Call"}
             </p>
