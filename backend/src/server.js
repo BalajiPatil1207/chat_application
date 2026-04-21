@@ -67,10 +67,19 @@ app.use("/api/messages", messageRoutes);
 app.use("/api/message", messageRoutes);
 
 if (ENV.NODE_ENV === "production") {
-    app.use(express.static(path.join(__dirname, "../frontend/dist")));
+    const frontendDistPath = path.join(__dirname, "../frontend/dist");
+    
+    // Serve frontend static files if they exist (monorepo deployment)
+    app.use(express.static(frontendDistPath));
 
     app.get("*", (req, res) => {
-        res.sendFile(path.join(__dirname, "../frontend", "dist", "index.html"));
+        const indexPath = path.join(frontendDistPath, "index.html");
+        // Only send file if it exists, otherwise it might be a split deployment
+        res.sendFile(indexPath, (err) => {
+            if (err) {
+                res.status(404).send("Not Found (Backend only mode)");
+            }
+        });
     });
 }
 
