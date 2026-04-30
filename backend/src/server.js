@@ -26,6 +26,8 @@ const __dirname = path.resolve();
 // --- CORS & Security ---
 const allowedOrigins = [
   ENV.CLIENT_URL,
+  "https://chat-application-two-pi.vercel.app",
+  "https://chat-application-evuqi5lu6-balaji-patil-1207s-projects.vercel.app",
   "http://localhost:5173",
   "http://localhost:5174",
   "http://127.0.0.1:5173",
