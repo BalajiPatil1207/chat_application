@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../store/useAuthStore";
 import BorderAnimatedContainer from "../components/BorderAnimatedContainer";
 import { MessageCircleIcon, LockIcon, MailIcon, UserIcon, LoaderIcon } from "lucide-react";
@@ -8,9 +9,12 @@ function SignUpPage() {
   const [formData, setFormData] = useState({ fullName: "", email: "", password: "" });
   const { signup, isSigningUp } = useAuthStore();
 
-  const handleSubmit = (e) => {
+  const navigate = useNavigate();
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    signup(formData);
+    const success = await signup(formData);
+    if (success) navigate("/login");
   };
 
   return (
