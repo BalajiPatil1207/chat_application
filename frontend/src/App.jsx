@@ -8,6 +8,7 @@ import PageLoader from "./components/PageLoader";
 import IncomingCallModal from "./components/IncomingCallModal";
 import CallOverlay from "./components/CallOverlay";
 import { useCallStore } from "./store/useCallStore";
+import { useChatStore } from "./store/useChatStore";
 
 import { Toaster } from "react-hot-toast";
 
