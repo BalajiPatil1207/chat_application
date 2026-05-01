@@ -32,7 +32,7 @@ function ChatContainer() {
   return (
     <>
       <ChatHeader />
-      <div className="flex-1 overflow-y-auto relative bg-[#0b141a]">
+      <div className="flex-1 overflow-y-auto min-h-0 relative bg-[#0b141a]">
         {/* WhatsApp Background Pattern */}
         <div
           className="absolute inset-0 opacity-[0.05] pointer-events-none"

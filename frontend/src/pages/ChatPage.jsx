@@ -19,7 +19,7 @@ function ChatPage() {
   }, [subscribeToMessages, unsubscribeFromMessages]);
 
   return (
-    <div className="h-[100dvh] md:h-[calc(100vh-4rem)] w-full max-w-6xl mx-auto overflow-hidden bg-[var(--bg-main)] md:rounded-2xl shadow-2xl flex flex-col md:flex-row border border-[var(--border-color)]">
+    <div className="h-[100dvh] md:h-[calc(100vh-4rem)] w-full max-w-6xl mx-auto overflow-hidden overflow-x-hidden bg-[var(--bg-main)] md:rounded-2xl shadow-2xl flex flex-col md:flex-row border border-[var(--border-color)]">
       {/* SIDEBAR / MOBILE LIST */}
       <div className={`flex-1 md:flex-none md:w-[380px] flex-col border-r border-[var(--border-color)] bg-[var(--bg-surface)] transition-all duration-300 ${selectedUser ? "hidden md:flex" : "flex"}`}>
         
@@ -35,7 +35,7 @@ function ChatPage() {
         </div>
 
         {/* CONTENT AREA */}
-        <div className="flex-1 overflow-y-auto custom-scrollbar">
+        <div className="flex-1 overflow-y-auto min-h-0 custom-scrollbar">
           {activeTab === "settings" ? (
             <div className="md:hidden h-full">
               <ProfileHeader isFullView />
@@ -56,11 +56,11 @@ function ChatPage() {
       </div>
 
       {/* CHAT AREA */}
-      <div className={`flex-1 flex flex-col bg-[var(--bg-main)] relative ${!selectedUser ? "hidden md:flex" : "flex"}`}>
+      <div className={`flex-1 flex flex-col bg-[var(--bg-main)] relative min-h-0 ${!selectedUser ? "hidden md:flex" : "flex"}`}>
         {selectedUser ? (
           <ChatContainer />
         ) : (
-          <div className="hidden md:flex flex-1">
+          <div className="hidden md:flex flex-1 min-h-0">
             <NoConversationPlaceholder />
           </div>
         )}
