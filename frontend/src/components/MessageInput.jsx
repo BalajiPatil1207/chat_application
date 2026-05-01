@@ -74,7 +74,7 @@ function MessageInput() {
   };
 
   return (
-    <div className="px-3 py-3 md:px-4 md:py-4 glass-navbar bg-transparent border-none">
+    <div className="px-2 py-3 md:px-4 md:py-4 glass-navbar bg-transparent border-none">
       {imagePreview && (
         <div className="mb-4 flex items-center animate-in fade-in slide-in-from-bottom-2 duration-300">
           <div className="relative glass-card p-1.5 rounded-2xl shadow-2xl">
@@ -94,8 +94,8 @@ function MessageInput() {
         </div>
       )}
 
-      <form onSubmit={handleSendMessage} className="flex items-end gap-2.5 max-w-5xl mx-auto">
-        <div className="flex-1 flex items-center gap-1.5 bg-[var(--bg-elevated)] rounded-[28px] px-2.5 py-1.5 md:px-4 min-h-[52px] relative shadow-lg ring-1 ring-[var(--border-color)] focus-within:ring-[var(--accent-color)]/30 transition-all">
+      <form onSubmit={handleSendMessage} className="flex items-end gap-2 md:gap-2.5 max-w-5xl mx-auto w-full">
+        <div className="flex-1 flex items-center gap-1 md:gap-1.5 min-w-0 bg-[var(--bg-elevated)] rounded-[28px] px-2 py-1.5 md:px-4 min-h-[52px] relative shadow-lg ring-1 ring-[var(--border-color)] focus-within:ring-[var(--accent-color)]/30 transition-all">
           <button
             type="button"
             className={`p-2 rounded-full transition-all duration-300 ${showEmojiPicker ? "text-[var(--accent-color)] scale-110" : "text-[var(--text-muted)] hover:text-[var(--text-main)]"}`}
