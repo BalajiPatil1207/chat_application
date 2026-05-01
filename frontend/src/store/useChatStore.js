@@ -290,9 +290,13 @@ export const useChatStore = create((set, get) => ({
     });
 
     socket.on("newGroupMessage", (newMessage) => {
-        const { selectedGroup, isSoundEnabled } = get();
+        const { selectedGroup, isSoundEnabled, messages } = get();
         if (selectedGroup && newMessage.groupId === selectedGroup._id) {
-            set({ messages: [...get().messages, newMessage] });
+            // Check if message already exists (to prevent duplicates from optimistic updates)
+            const isDuplicate = messages.some(m => m._id === newMessage._id);
+            if (!isDuplicate) {
+                set({ messages: [...messages, newMessage] });
+            }
         }
         
         if (isSoundEnabled) {
@@ -302,7 +306,7 @@ export const useChatStore = create((set, get) => ({
     });
 
     socket.on("newMessage", (newMessage) => {
-      const { selectedUser, isSoundEnabled, chats, markMessagesAsSeen } = get();
+      const { selectedUser, isSoundEnabled, chats, markMessagesAsSeen, messages } = get();
       
       const senderId = newMessage.senderId;
       const isFromSelectedUser = selectedUser && senderId === selectedUser._id;
@@ -315,16 +319,15 @@ export const useChatStore = create((set, get) => ({
       if (existingChat) {
         updatedChat = { 
           ...existingChat, 
-          lastMessage: newMessage.text || "Image", 
+          lastMessage: newMessage.text || "Attachment", 
           lastMessageTime: newMessage.createdAt,
           unreadCount: isFromSelectedUser ? 0 : (existingChat.unreadCount || 0) + 1
         };
       } else {
-        // If it's a brand new chat partner we didn't have in the list yet
         updatedChat = {
           _id: senderId,
-          fullName: "New Message", // Will be refreshed on next fetch or handled by fetch logic
-          lastMessage: newMessage.text || "Image",
+          fullName: "New Message",
+          lastMessage: newMessage.text || "Attachment",
           lastMessageTime: newMessage.createdAt,
           unreadCount: 1
         };
@@ -334,7 +337,11 @@ export const useChatStore = create((set, get) => ({
 
       // --- MESSAGE LIST ---
       if (isFromSelectedUser) {
-        set({ messages: [...get().messages, newMessage] });
+        // Check if message already exists
+        const isDuplicate = messages.some(m => m._id === newMessage._id);
+        if (!isDuplicate) {
+            set({ messages: [...messages, newMessage] });
+        }
         markMessagesAsSeen(senderId);
       }
 

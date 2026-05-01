@@ -20,13 +20,13 @@
 }
 
 .dark {
-  /* Dark Theme */
-  --bg-main: #0b141a;
-  --bg-surface: #111b21;
-  --bg-elevated: #202c33;
-  --text-main: #f8fafc;
+  /* Dark Theme - Neutral Gray Palette */
+  --bg-main: #121212;
+  --bg-surface: #1e1e1e;
+  --bg-elevated: #2d2d2d;
+  --text-main: #f1f5f9;
   --text-muted: #94a3b8;
-  --border-color: rgba(255, 255, 255, 0.05);
+  --border-color: rgba(255, 255, 255, 0.08);
   --accent-color: #f97316;
   --accent-hover: #fb923c;
 }

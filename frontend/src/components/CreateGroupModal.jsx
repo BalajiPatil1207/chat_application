@@ -50,13 +50,13 @@ const CreateGroupModal = ({ onClose }) => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-      <div className="bg-base-100 rounded-2xl w-full max-w-md shadow-2xl overflow-hidden border border-base-300">
-        <div className="p-4 border-b border-base-300 flex items-center justify-between bg-base-200">
+      <div className="bg-[var(--bg-surface)] rounded-2xl w-full max-w-md shadow-2xl overflow-hidden border border-[var(--border-color)]">
+        <div className="p-4 border-b border-[var(--border-color)] flex items-center justify-between bg-[var(--bg-elevated)]">
           <div className="flex items-center gap-2">
-            <UserPlus className="w-5 h-5 text-primary" />
-            <h3 className="font-bold text-lg">Create New Group</h3>
+            <UserPlus className="w-5 h-5 text-[var(--accent-color)]" />
+            <h3 className="font-bold text-lg text-[var(--text-main)]">Create New Group</h3>
           </div>
-          <button onClick={onClose} className="btn btn-ghost btn-sm btn-circle">
+          <button onClick={onClose} className="p-2 hover:bg-[var(--bg-surface)] rounded-full transition-colors text-[var(--text-muted)]">
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -68,23 +68,21 @@ const CreateGroupModal = ({ onClose }) => {
               <img
                 src={groupAvatar || "/avatar.png"}
                 alt="Group Avatar"
-                className="w-24 h-24 rounded-full object-cover border-4 border-primary/20"
+                className="w-24 h-24 rounded-full object-cover border-4 border-[var(--accent-color)]/20"
               />
-              <label className="absolute bottom-0 right-0 p-2 bg-primary rounded-full cursor-pointer hover:scale-110 transition-transform shadow-lg">
-                <ImageIcon className="w-4 h-4 text-primary-content" />
+              <label className="absolute bottom-0 right-0 p-2 bg-[var(--accent-color)] rounded-full cursor-pointer hover:scale-110 transition-transform shadow-lg">
+                <ImageIcon className="w-4 h-4 text-white" />
                 <input type="file" className="hidden" accept="image/*" onChange={handleImageChange} />
               </label>
             </div>
-            <p className="text-xs text-base-content/60">Group Profile Picture</p>
+            <p className="text-xs text-[var(--text-muted)]">Group Profile Picture</p>
           </div>
 
-          <div className="form-control">
-            <label className="label">
-              <span className="label-text font-medium">Group Name</span>
-            </label>
+          <div className="space-y-1">
+            <label className="text-sm font-semibold text-[var(--text-muted)]">Group Name</label>
             <input
               type="text"
-              className="input input-bordered w-full focus:input-primary"
+              className="w-full bg-[var(--bg-elevated)] border border-[var(--border-color)] rounded-xl py-2.5 px-4 text-[var(--text-main)] outline-none focus:ring-1 focus:ring-[var(--accent-color)]/50 transition-all"
               placeholder="Enter group name"
               value={name}
               onChange={(e) => setName(e.target.value)}
@@ -92,37 +90,37 @@ const CreateGroupModal = ({ onClose }) => {
             />
           </div>
 
-          <div className="form-control">
-            <label className="label">
-              <span className="label-text font-medium">Description (Optional)</span>
-            </label>
+          <div className="space-y-1">
+            <label className="text-sm font-semibold text-[var(--text-muted)]">Description (Optional)</label>
             <textarea
-              className="textarea textarea-bordered h-20 focus:textarea-primary"
+              className="w-full bg-[var(--bg-elevated)] border border-[var(--border-color)] rounded-xl py-2.5 px-4 text-[var(--text-main)] outline-none focus:ring-1 focus:ring-[var(--accent-color)]/50 transition-all h-20 resize-none"
               placeholder="What's this group about?"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
             />
           </div>
 
-          <div className="form-control">
-            <label className="label">
-              <span className="label-text font-medium">Select Members ({selectedMembers.length})</span>
-            </label>
-            <div className="max-h-40 overflow-y-auto space-y-2 border border-base-300 rounded-lg p-2 bg-base-200/50">
+          <div className="space-y-1">
+            <label className="text-sm font-semibold text-[var(--text-muted)]">Select Members ({selectedMembers.length})</label>
+            <div className="max-h-40 overflow-y-auto space-y-2 border border-[var(--border-color)] rounded-xl p-2 bg-[var(--bg-elevated)]/50 custom-scrollbar">
               {allContacts.map((contact) => (
                 <div
                   key={contact._id}
                   onClick={() => toggleMember(contact._id)}
-                  className={`flex items-center gap-3 p-2 rounded-lg cursor-pointer transition-colors ${
-                    selectedMembers.includes(contact._id) ? "bg-primary/20 border border-primary/30" : "hover:bg-base-300"
+                  className={`flex items-center gap-3 p-2 rounded-lg cursor-pointer transition-all ${
+                    selectedMembers.includes(contact._id) 
+                      ? "bg-[var(--accent-color)]/10 border border-[var(--accent-color)]/30" 
+                      : "hover:bg-[var(--bg-surface)] border border-transparent"
                   }`}
                 >
                   <img
                     src={contact.profilePic || "/avatar.png"}
                     alt={contact.fullName}
-                    className="w-8 h-8 rounded-full object-cover"
+                    className="w-8 h-8 rounded-full object-cover border border-[var(--border-color)]"
                   />
-                  <span className="text-sm font-medium">{contact.fullName}</span>
+                  <span className={`text-sm font-medium ${selectedMembers.includes(contact._id) ? "text-[var(--accent-color)]" : "text-[var(--text-main)]"}`}>
+                    {contact.fullName}
+                  </span>
                 </div>
               ))}
             </div>
@@ -131,7 +129,7 @@ const CreateGroupModal = ({ onClose }) => {
           <div className="pt-4">
             <button
               type="submit"
-              className={`btn btn-primary w-full shadow-lg ${isSubmitting ? "loading" : ""}`}
+              className={`w-full py-3 bg-[var(--accent-color)] hover:bg-[var(--accent-hover)] text-white rounded-xl font-bold shadow-lg shadow-[var(--accent-color)]/20 transition-all active:scale-[0.98] flex items-center justify-center gap-2 ${isSubmitting ? "opacity-70 cursor-not-allowed" : ""}`}
               disabled={isSubmitting || !name || selectedMembers.length === 0}
             >
               {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : "Create Group"}
