@@ -1,16 +1,17 @@
-import { MessageSquare, Users, User, Settings } from "lucide-react";
+import { MessageSquare, Users, User, Contact } from "lucide-react";
 import { useChatStore } from "../store/useChatStore";
 
 function BottomNavbar() {
-  const { activeTab, setActiveTab, selectedUser, setSelectedUser } = useChatStore();
+  const { activeTab, setActiveTab, selectedUser, setSelectedUser, selectedGroup, setSelectedGroup } = useChatStore();
 
   const tabs = [
     { id: "chats", label: "Chats", icon: MessageSquare },
-    { id: "contacts", label: "Contacts", icon: Users },
+    { id: "groups", label: "Groups", icon: Users },
+    { id: "contacts", label: "Contacts", icon: Contact },
     { id: "settings", label: "Profile", icon: User },
   ];
 
-  if (selectedUser) return null; // Hide navbar when a chat is open on mobile
+  if (selectedUser || selectedGroup) return null; // Hide navbar when a chat/group is open on mobile
 
   return (
     <div className="md:hidden glass-navbar h-16 flex items-center justify-around px-2 pb-safe">
@@ -24,6 +25,7 @@ function BottomNavbar() {
             onClick={() => {
               setActiveTab(tab.id);
               setSelectedUser(null);
+              setSelectedGroup(null);
             }}
             className={`flex flex-col items-center justify-center gap-1 w-full h-full transition-all duration-300 ${
               isActive ? "text-[var(--accent-color)]" : "text-[var(--text-muted)]"

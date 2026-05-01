@@ -148,7 +148,7 @@ function MessageInput() {
           <div className="flex-1 flex items-center gap-1 md:gap-1.5 min-w-0 bg-[var(--bg-elevated)] rounded-[28px] px-2 py-1.5 md:px-4 min-h-[52px] relative shadow-lg ring-1 ring-[var(--border-color)] focus-within:ring-[var(--accent-color)]/30 transition-all">
             <button
               type="button"
-              className={`p-2 rounded-full transition-all duration-300 ${showEmojiPicker ? "text-[var(--accent-color)] scale-110" : "text-[var(--text-muted)] hover:text-[var(--text-main)]"}`}
+              className={`p-2 shrink-0 transition-all duration-300 ${showEmojiPicker ? "text-[var(--accent-color)] scale-110" : "text-[var(--text-muted)] hover:text-[var(--text-main)]"}`}
               onClick={() => setShowEmojiPicker(!showEmojiPicker)}
             >
               <Smile className="size-6" />
@@ -169,19 +169,11 @@ function MessageInput() {
               </div>
             )}
 
-            <button
-              type="button"
-              className="p-2 text-[var(--text-muted)] hover:text-[var(--accent-color)] rounded-full transition-all"
-              onClick={() => fileInputRef.current?.click()}
-            >
-              <ImageIcon className="size-6" />
-            </button>
-
             <input
               type="text"
               value={text}
               onChange={handleInputChange}
-              className="flex-1 bg-transparent border-none text-[var(--text-main)] placeholder-[var(--text-muted)] focus:ring-0 text-[16px] outline-none py-2"
+              className="flex-1 bg-transparent border-none text-[var(--text-main)] placeholder-[var(--text-muted)] focus:ring-0 text-[16px] outline-none py-2 min-w-0"
               placeholder="Type a message..."
             />
 
@@ -201,13 +193,24 @@ function MessageInput() {
               className="hidden"
             />
 
-            <button
-              type="button"
-              className="p-2 text-[var(--text-muted)] hover:text-[var(--accent-color)] rounded-full transition-all"
-              onClick={() => docInputRef.current?.click()}
-            >
-              <Paperclip className="size-6" />
-            </button>
+            {/* Attachment Icons Group - Hide on mobile when typing */}
+            <div className={`flex items-center gap-0.5 md:gap-1 ${text.trim() ? "hidden md:flex" : "flex"}`}>
+              <button
+                type="button"
+                className="p-2 text-[var(--text-muted)] hover:text-[var(--accent-color)] rounded-full transition-all shrink-0"
+                onClick={() => fileInputRef.current?.click()}
+              >
+                <ImageIcon className="size-5 md:size-6" />
+              </button>
+
+              <button
+                type="button"
+                className="p-2 text-[var(--text-muted)] hover:text-[var(--accent-color)] rounded-full transition-all shrink-0"
+                onClick={() => docInputRef.current?.click()}
+              >
+                <Paperclip className="size-5 md:size-6" />
+              </button>
+            </div>
           </div>
 
           {text.trim() || imagePreview ? (
